@@ -6,7 +6,7 @@ import secrets
 import json
 import time
 from nostr_client import NostrClient, generate_private_key, get_public_key, sign_event
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 import io
 import altair as alt
 
@@ -147,7 +147,10 @@ else:
             for candidate in candidates:
                 col1, col2, col3 = st.columns([1, 2, 1])
                 with col1:
-                    st.image(Image.open(io.BytesIO(candidate[4])), width=100)
+                    try:
+                        st.image(Image.open(io.BytesIO(candidate[4])), width=100)
+                    except UnidentifiedImageError:
+                        st.write("No image available")
                 with col2:
                     st.write(f"**{candidate[2]}**")
                     st.write(f"{candidate[3]}")
