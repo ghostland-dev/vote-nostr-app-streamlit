@@ -20,7 +20,7 @@ class NostrClient:
         print("Error:", error)
         self.connect()  # Reconnect on error
 
-    def on_close(self, ws):
+    def on_close(self, ws, close_status_code, close_msg):
         print("Connection closed")
         self.connect()  # Reconnect on close
 
@@ -32,13 +32,14 @@ class NostrClient:
             self.relay_url,
             on_message=self.on_message,
             on_error=self.on_error,
-            on_close=self.on_close
+            on_close=self.on_close,
+            on_open=self.on_open
         )
         self.thread = threading.Thread(target=self.ws.run_forever)
         self.thread.start()
 
     def send_event(self, event):
-        if not self.ws or not self.ws.sock.connected:
+        if not self.ws or not self.ws.sock or not self.ws.sock.connected:
             self.connect()
             time.sleep(1)  # Wait for connection to be established
         self.ws.send(json.dumps(event))
